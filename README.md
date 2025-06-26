@@ -1,5 +1,7 @@
-ATM Simulator
-Project Description
+**ATM Simulator**
+
+*Project Description*
+
 This project implements a simple ATM system simulator. It features a REST API backend developed with Spring Boot and an interactive web frontend built with HTML, CSS (Bootstrap), and JavaScript.
 
 The application allows you to simulate key banking operations:
