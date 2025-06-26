@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancomat Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        /* Il tuo CSS personalizzato qui (lascialo come prima, o riadattalo se vuoi) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #5b5b5b;
+            margin: 0;
+        }
+        .container {
+            width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        /* I bottoni useranno le classi Bootstrap */
+
+        /* Messaggi di Stato */
+        .message { /* Stile base per tutti i messaggi */
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none; /* Nascosto di default */
+        }
+        /* Bootstrap alerts sostituiranno queste classi per i colori */
+        /* #globalMessage.success { ... } */
+        /* #globalMessage.error { ... } */
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="my-4">Gestione Bancomat</h1>
+
+        <div class="operations-grid">
+            <button id="btnGetSaldo" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalSaldo">Vedi Saldo</button>
+            <button id="btnDeposito" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalDeposito">Deposita</button>
+            <button id="btnPrelievo" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#modalPrelievo">Preleva</button>
+            <button id="btnBonifico" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#modalBonifico">Bonifico</button>
+            <button id="btnCreaCliente" class="btn btn-secondary btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreaCliente">Crea Cliente</button>
+            <button id="btnCreaConto" class="btn btn-dark btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreaConto">Crea Conto</button>
+        </div>
+
+        <div id="globalMessage" class="alert mt-3" role="alert"></div>
+    </div>
+
+    <div class="modal fade" id="modalSaldo" tabindex="-1" aria-labelledby="modalSaldoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalSaldoLabel">Dettagli Saldo</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="saldoNumeroConto" class="form-label">Numero Conto:</label>
+              <input type="text" class="form-control" id="saldoNumeroConto" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div id="saldoMessage" class="message"></div> </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+            <button type="button" class="btn btn-primary" id="btnConfermaSaldo">Vedi Saldo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalDeposito" tabindex="-1" aria-labelledby="modalDepositoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalDepositoLabel">Deposita</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="depositoNumeroConto" class="form-label">Numero Conto:</label>
+              <input type="text" class="form-control" id="depositoNumeroConto" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div class="mb-3">
+              <label for="depositoImporto" class="form-label">Importo:</label>
+              <input type="number" class="form-control" id="depositoImporto" placeholder="0.00" step="0.01" required>
+            </div>
+            <div id="depositoMessage" class="message"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-success" id="btnConfermaDeposito">Conferma Deposito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalPrelievo" tabindex="-1" aria-labelledby="modalPrelievoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalPrelievoLabel">Preleva</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="prelievoNumeroConto" class="form-label">Numero Conto:</label>
+              <input type="text" class="form-control" id="prelievoNumeroConto" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div class="mb-3">
+              <label for="prelievoImporto" class="form-label">Importo:</label>
+              <input type="number" class="form-control" id="prelievoImporto" placeholder="0.00" step="0.01" required>
+            </div>
+            <div id="prelievoMessage" class="message"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-danger" id="btnConfermaPrelievo">Conferma Prelievo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalBonifico" tabindex="-1" aria-labelledby="modalBonificoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalBonificoLabel">Bonifico</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="bonificoMittente" class="form-label">Conto Mittente:</label>
+              <input type="text" class="form-control" id="bonificoMittente" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div class="mb-3">
+              <label for="bonificoDestinatario" class="form-label">Conto Destinatario:</label>
+              <input type="text" class="form-control" id="bonificoDestinatario" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div class="mb-3">
+              <label for="bonificoImporto" class="form-label">Importo:</label>
+              <input type="number" class="form-control" id="bonificoImporto" placeholder="0.00" step="0.01" required>
+            </div>
+            <div id="bonificoMessage" class="message"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-info" id="btnConfermaBonifico">Conferma Bonifico</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalCreaCliente" tabindex="-1" aria-labelledby="modalCreaClienteLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalCreaClienteLabel">Crea Nuovo Cliente</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="clienteNome" class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="clienteNome" required>
+            </div>
+            <div class="mb-3">
+              <label for="clienteCognome" class="form-label">Cognome:</label>
+              <input type="text" class="form-control" id="clienteCognome" required>
+            </div>
+            <div class="mb-3">
+              <label for="clienteDataNascita" class="form-label">Data Nascita (YYYY-MM-DD):</label>
+              <input type="text" class="form-control" id="clienteDataNascita" placeholder="YYYY-MM-DD" required>
+            </div>
+            <div id="creaClienteMessage" class="message"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-primary" id="btnConfermaCreaCliente">Crea Cliente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalCreaConto" tabindex="-1" aria-labelledby="modalCreaContoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title fs-5" id="modalCreaContoLabel">Apri Nuovo Conto</h3>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="contoClienteId" class="form-label">ID Cliente:</label>
+              <input type="number" class="form-control" id="contoClienteId" required>
+            </div>
+            <div class="mb-3">
+              <label for="contoNumeroConto" class="form-label">Numero Conto (Suggerito: ITSGXXXXXXXXX):</label>
+              <input type="text" class="form-control" id="contoNumeroConto" placeholder="ITxxxxxxxxxxxx" required>
+            </div>
+            <div id="creaContoMessage" class="message"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+            <button type="button" class="btn btn-primary" id="btnConfermaCreaConto">Crea Conto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        // Funzione per visualizzare messaggi (interni alla modale)
+        function displayModalMessage(modalId, message, isError = false) {
+            const messageDiv = document.querySelector(`#${modalId} .message`); // Seleziona per classe 'message'
+            messageDiv.innerHTML = message;
+            messageDiv.className = `message alert ${isError ? 'alert-danger' : 'alert-success'} mt-3`;
+            messageDiv.style.display = 'block';
+        }
+
+        // Funzione per visualizzare un messaggio globale (sotto i bottoni principali)
+        function displayGlobalMessage(message, isError = false) {
+            const globalMessageDiv = document.getElementById('globalMessage');
+            globalMessageDiv.textContent = message;
+            globalMessageDiv.className = `alert ${isError ? 'alert-danger' : 'alert-success'} mt-3`;
+            globalMessageDiv.style.display = 'block';
+            setTimeout(() => { globalMessageDiv.style.display = 'none'; }, 5000);
+        }
+
+        // Pulisci tutti i messaggi sia nelle modali che quello globale
+        function clearAllMessages() {
+            document.querySelectorAll('.modal .message').forEach(msgDiv => { // Seleziona per classe 'message'
+                msgDiv.textContent = '';
+                msgDiv.className = 'message'; // Resetta solo alla classe base
+            });
+            document.getElementById('globalMessage').style.display = 'none';
+            document.getElementById('globalMessage').textContent = '';
+            document.getElementById('globalMessage').className = 'alert mt-3';
+        }
+
+        // --- Funzioni per le Chiamate API (invariate) ---
+        async function fetchApi(url, method = 'GET', body = null) {
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, options);
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.message || `Errore HTTP: ${response.status}`);
+            }
+            return responseData;
+        }
+
+        // --- Logica Modali Specifiche (rimane invariata nella sua essenza, ma senza chiamare open/closeModal JS) ---
+
+        // Quando una modale Bootstrap si apre, pulisci i messaggi
+        document.querySelectorAll('.modal').forEach(modalElement => {
+            modalElement.addEventListener('show.bs.modal', clearAllMessages);
+        });
+
+
+        // Modale Saldo
+        document.getElementById('btnConfermaSaldo').addEventListener('click', async () => {
+            const numeroConto = document.getElementById('saldoNumeroConto').value;
+            if (!numeroConto) {
+                displayModalMessage('modalSaldo', "Inserisci il numero di conto.", true);
+                return;
+            }
+            try {
+                const contoDettagli = await fetchApi(`http://localhost:8080/api/bancomat/conti/${numeroConto}`);
+                let message = `Conto: ${contoDettagli.numeroConto}<br>`;
+                message += `Saldo: ${contoDettagli.saldo.toFixed(2)} €<br>`;
+                message += `Titolare: ${contoDettagli.cliente ? contoDettagli.cliente.nomeCompleto : 'N/A'}`;
+                displayModalMessage('modalSaldo', message, false);
+            } catch (error) {
+                displayModalMessage('modalSaldo', `Errore: ${error.message}`, true);
+            }
+        });
+
+        // Modale Deposito
+        document.getElementById('btnConfermaDeposito').addEventListener('click', async () => {
+            const numeroConto = document.getElementById('depositoNumeroConto').value;
+            const importo = parseFloat(document.getElementById('depositoImporto').value);
+            if (!numeroConto || isNaN(importo) || importo <= 0) {
+                displayModalMessage('modalDeposito', "Dati deposito non validi.", true);
+                return;
+            }
+            try {
+                const responseData = await fetchApi(`http://localhost:8080/api/bancomat/conti/${numeroConto}/deposito`, 'PUT', { importo: importo });
+                displayModalMessage('modalDeposito', responseData.message, false);
+                document.getElementById('depositoNumeroConto').value = '';
+                document.getElementById('depositoImporto').value = '';
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modalDeposito');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide(); // Chiude la modale con Bootstrap
+                    displayGlobalMessage(responseData.message, false);
+                }, 1500);
+            } catch (error) {
+                displayModalMessage('modalDeposito', `Errore: ${error.message}`, true);
+            }
+        });
+
+        // Modale Prelievo
+        document.getElementById('btnConfermaPrelievo').addEventListener('click', async () => {
+            const numeroConto = document.getElementById('prelievoNumeroConto').value;
+            const importo = parseFloat(document.getElementById('prelievoImporto').value);
+            if (!numeroConto || isNaN(importo) || importo <= 0) {
+                displayModalMessage('modalPrelievo', "Dati prelievo non validi.", true);
+                return;
+            }
+            try {
+                const responseData = await fetchApi(`http://localhost:8080/api/bancomat/conti/${numeroConto}/prelievo`, 'PUT', { importo: importo });
+                displayModalMessage('modalPrelievo', responseData.message, false);
+                document.getElementById('prelievoNumeroConto').value = '';
+                document.getElementById('prelievoImporto').value = '';
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modalPrelievo');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide();
+                    displayGlobalMessage(responseData.message, false);
+                }, 1500);
+            } catch (error) {
+                displayModalMessage('modalPrelievo', `Errore: ${error.message}`, true);
+            }
+        });
+
+        // Modale Bonifico
+        document.getElementById('btnConfermaBonifico').addEventListener('click', async () => {
+            const mittente = document.getElementById('bonificoMittente').value;
+            const destinatario = document.getElementById('bonificoDestinatario').value;
+            const importo = parseFloat(document.getElementById('bonificoImporto').value);
+
+            if (!mittente || !destinatario || isNaN(importo) || importo <= 0) {
+                displayModalMessage('modalBonifico', "Dati bonifico non validi.", true);
+                return;
+            }
+            try {
+                const responseData = await fetchApi(`http://localhost:8080/api/bancomat/bonifico`, 'PUT', { mittente: mittente, destinatario: destinatario, importo: importo });
+                displayModalMessage('modalBonifico', responseData.message, false);
+                document.getElementById('bonificoMittente').value = '';
+                document.getElementById('bonificoDestinatario').value = '';
+                document.getElementById('bonificoImporto').value = '';
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modalBonifico');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide();
+                    displayGlobalMessage(responseData.message, false);
+                }, 1500);
+            } catch (error) {
+                displayModalMessage('modalBonifico', `Errore: ${error.message}`, true);
+            }
+        });
+
+        // Modale Crea Cliente
+        document.getElementById('btnConfermaCreaCliente').addEventListener('click', async () => {
+            const nome = document.getElementById('clienteNome').value;
+            const cognome = document.getElementById('clienteCognome').value;
+            const dataNascita = document.getElementById('clienteDataNascita').value;
+
+            if (!nome || !cognome || !dataNascita) {
+                displayModalMessage('modalCreaCliente', "Compila tutti i campi.", true);
+                return;
+            }
+            try {
+                const clienteData = await fetchApi(`http://localhost:8080/api/bancomat/clienti`, 'POST', {
+                    nome: nome,
+                    cognome: cognome,
+                    dataNascita: dataNascita
+                });
+                displayModalMessage('modalCreaCliente', `Cliente creato: ID ${clienteData.id}, ${clienteData.nomeCompleto}`, false);
+                document.getElementById('clienteNome').value = '';
+                document.getElementById('clienteCognome').value = '';
+                document.getElementById('clienteDataNascita').value = '';
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modalCreaCliente');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide();
+                    displayGlobalMessage(`Cliente ${clienteData.nomeCompleto} creato!`, false);
+                }, 1500);
+            } catch (error) {
+                displayModalMessage('modalCreaCliente', `Errore creazione cliente: ${error.message}`, true);
+            }
+        });
+
+        // Modale Crea Conto
+        document.getElementById('btnConfermaCreaConto').addEventListener('click', async () => {
+            const clienteId = parseInt(document.getElementById('contoClienteId').value);
+            const numeroConto = document.getElementById('contoNumeroConto').value;
+
+            if (isNaN(clienteId) || clienteId <= 0 || !numeroConto) {
+                displayModalMessage('modalCreaConto', "ID Cliente o Numero Conto non validi.", true);
+                return;
+            }
+            try {
+                const contoData = await fetchApi(`http://localhost:8080/api/bancomat/conti`, 'POST', {
+                    clienteId: clienteId,
+                    numeroConto: numeroConto
+                });
+                displayModalMessage('modalCreaConto', `Conto ${contoData.numeroConto} creato per Cliente ID ${contoData.clienteId}!`, false);
+                document.getElementById('contoClienteId').value = '';
+                document.getElementById('contoNumeroConto').value = '';
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modalCreaConto');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    if (modalInstance) modalInstance.hide();
+                    displayGlobalMessage(`Conto ${contoData.numeroConto} creato!`, false);
+                }, 1500);
+            } catch (error) {
+                displayModalMessage('modalCreaConto', `Errore creazione conto: ${error.message}`, true);
+            }
+        });
+
+    </script>
+</body>
+</html>

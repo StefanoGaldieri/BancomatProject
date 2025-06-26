@@ -1,0 +1,65 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+log/
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven artifacts
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/MavenWrapper.properties
+
+# Gradle artifacts
+.gradle/
+/build/
+.project
+.settings/
+bin/
+.classpath
+.factorypath
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse files
+.metadata
+.DS_Store
+Thumbs.db
+
+# Spring Boot devtools remote debug
+.spring-boot-devtools.properties
+
+# JRebel
+*.jrxml
+
+# Mac files
+.DS_Store
+
+# OS generated files
+.idea/
+.vscode/
+.vs/
+*.swp
+*~
+.project
+.classpath
+.settings/
+.DS_Store
+ehcache.xml
+hs_err_pid*.log
